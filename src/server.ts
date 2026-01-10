@@ -1,9 +1,8 @@
-import express from "express";
-
+import app from "./app";
+import dotenv from "dotenv";
 // import cors from "cors";
 
-const app = express();
-
-app.listen(3000, () => {
-  console.log("Server is running");
+dotenv.config();
+app.listen(process.env.PORT, () => {
+  console.log("Server is running", process.env.PORT);
 });
