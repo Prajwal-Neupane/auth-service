@@ -2,6 +2,7 @@ import { prisma } from "../../config/prisma";
 
 import bcrypt from "bcrypt";
 import { generateAccessToken, generateRefreshToken } from "./jwt";
+import jwt from "jsonwebtoken";
 
 export const registerUser = async (email: string, password: string) => {
   const existingUser = await prisma.user.findUnique({ where: { email } });
@@ -42,4 +43,27 @@ export const loginUser = async (email: string, password: string) => {
   });
 
   return { accessToken, refreshToken };
+};
+
+const REFRESH_SECRET = process.env.REFRESH_TOKEN as string;
+export const refreshAccessToken = async (refreshToken: string) => {
+  const stored = await prisma.refreshToken.findUnique({
+    where: { token: refreshToken },
+  });
+  if (!stored || stored.revoked || stored.expiresAt < new Date()) {
+    throw new Error("Invalid Token");
+  }
+
+  const payload = jwt.verify(refreshToken, REFRESH_SECRET) as {
+    userId: string;
+  };
+
+  const newAccessToken = jwt.sign(
+    {
+      userId: payload.userId,
+    },
+    process.env.ACCESS_TOKEN as string,
+    { expiresIn: "15m" }
+  );
+  return { accessToken: newAccessToken };
 };

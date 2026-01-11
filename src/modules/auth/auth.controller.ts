@@ -18,3 +18,15 @@ export const loginController = async (req: Request, res: Response) => {
     res.status(400).json({ error: error.message });
   }
 };
+
+import { refreshAccessToken } from "./auth.service";
+
+export const refreshController = async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+    const token = await refreshAccessToken(refreshToken);
+    res.json(token);
+  } catch (error: any) {
+    res.status(401).json({ error: error.message });
+  }
+};
