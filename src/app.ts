@@ -4,11 +4,12 @@ import cors from "cors";
 import { prisma } from "./config/prisma";
 import authRoutes from "./modules/auth/auth.routes";
 import protectedRoutes from "./modules/auth/auth.protected";
+import { requireApiKey } from "./middlewares/apiKey.middleware";
 const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.use("/auth", authRoutes);
+app.use("/v1/auth", requireApiKey, authRoutes);
 app.use("/auth", protectedRoutes);
 
 app.get("/", (_req, res) => {
